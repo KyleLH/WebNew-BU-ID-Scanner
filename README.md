@@ -1,4 +1,8 @@
 WebNew-BU-ID-Scanner
 ====================
 
-WebNew BU ID Scanner for the Undergraduate CS Lab
+Boston University ID Scanner for TFs at the Undergraduate Computer Science Lab
+
+
+![alt tag](https://raw.githubusercontent.com/hirokiosame/WebNew-BU-ID-Scanner/master/images/scan.png)
+![alt tag](https://raw.githubusercontent.com/hirokiosame/WebNew-BU-ID-Scanner/master/images/approval.png)

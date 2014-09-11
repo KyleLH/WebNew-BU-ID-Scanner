@@ -17,9 +17,6 @@ class WebNewBUIDScanner:
 
 	def __init__(self):
 
-		# Setup Tesseract
-		self.setUpTesseract()
-
 		#Inquire Credentials
 		self.buUn = urllib.quote_plus(raw_input("BU TA Username: "))
 		self.buPw = urllib.quote_plus(getpass.getpass("BU TA Password: "))
@@ -30,6 +27,8 @@ class WebNewBUIDScanner:
 		#Login
 		self.login()
 
+		# Setup Tesseract
+		self.setUpTesseract()
 
 		# Setup OpenCV
 		self.setUpOpenCV()
@@ -67,7 +66,7 @@ class WebNewBUIDScanner:
 				if profile != False and raw_input("Approve (y/n): ") == "y":
 					self.approveBUID(BUID)
 
-			# If Esc is pressed, quit
+			# If Esc is pressed, quit (Also the fps)
 			if cv.WaitKey(100) == 27: break
 
 
@@ -79,6 +78,7 @@ class WebNewBUIDScanner:
 
 
 	def setUpOpenCV(self):
+
 		# Setup OpenCV Window
 		cv.NamedWindow("Camera", 1)
 		self.capture = cv.CreateCameraCapture(0)
@@ -98,12 +98,14 @@ class WebNewBUIDScanner:
 						"https://weblogin.bu.edu//web@login3?jsv=1.5p&br=un&fl=0",
 						"p=&act=up&js=yes&jserror=&c2f=&r2f=&user="+self.buUn+"&pw="+self.buPw
 					)
+
 		if re.search("Weblogin complete; waiting for application.", attempt):
 
 			# Parse Auth Token
 			self.auth = next((i.value for i in self.cj if i.name == 'weblogin3'), 0)
 
 			print "Success!"
+
 		else:
 			sys.exit("Error: Login Failed")
 
@@ -140,7 +142,7 @@ class WebNewBUIDScanner:
 		print json.dumps(profile, sort_keys=True, indent=4)
 
 		# Check pending Approval
-		if re.search(r'Pending approval data not found for', response):
+		if re.search("Pending approval data not found for", response):
 			print "No pending approval data found for %s"%BUID
 			return False
 
@@ -171,7 +173,7 @@ class WebNewBUIDScanner:
 
 		response = self.httpReq("https://weblogin.bu.edu/accounts/bulogin-approve", False, req)
 
-		if re.search(r'Approve completed successfully', response): print "Approved!"
+		if re.search("Approve completed successfully", response): print "Approved!"
 		else: print "Failed!", response
 
 
@@ -217,4 +219,6 @@ class WebNewBUIDScanner:
 					print("Error! "+str(e))
 				else:
 					return source
+
+
 WebNewBUIDScanner()

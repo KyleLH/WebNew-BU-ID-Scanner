@@ -8,7 +8,8 @@ from bs4 import BeautifulSoup
 # brew install opencv
 import cv2.cv as cv
 
-# sudo easy_install https://bitbucket.org/3togo/python-tesseract/downloads/python-tesseract_0.8-3.0-py2.7_macosx-10.9-intel.egg
+# Option 2 https://code.google.com/p/python-tesseract/wiki/HowToCompileForHomebrewMac
+
 import tesseract
 
 import sys, re, getpass, urllib, urllib2, cookielib, json

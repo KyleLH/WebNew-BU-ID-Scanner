@@ -9,7 +9,6 @@ from bs4 import BeautifulSoup
 import cv2.cv as cv
 
 # Option 2 https://code.google.com/p/python-tesseract/wiki/HowToCompileForHomebrewMac
-
 import tesseract
 
 import sys, re, getpass, urllib, urllib2, cookielib, json

@@ -2,14 +2,7 @@
 
 # by HIROKI OSAME developed with Python v2.7.5
 
-# sudo easy_install beautifulsoup4
 from bs4 import BeautifulSoup
-
-# brew install opencv
-import cv2.cv as cv
-
-# Option 2 https://code.google.com/p/python-tesseract/wiki/HowToCompileForHomebrewMac
-import tesseract
 
 import sys, re, getpass, urllib, urllib2, cookielib, json
 
@@ -17,47 +10,41 @@ class WebNewBUIDScanner:
 
 	def __init__(self):
 
-		#Inquire Credentials
-		self.buUn = urllib.quote_plus(raw_input("BU TA Username: "))
-		self.buPw = urllib.quote_plus(getpass.getpass("BU TA Password: "))
+		try:
+			"""
+			Try to get credentials from .auth -- expected format of this file is:
+
+			```
+			username
+			password
+			```
+			"""
+			f = open(".auth", "r")
+			self.buUn = f.readline().rstrip()
+			self.buPw = f.readline().rstrip()
+		except IOError:
+			#Inquire Credentials
+			self.buUn = urllib.quote_plus(raw_input("BU TA Username: "))
+			self.buPw = urllib.quote_plus(getpass.getpass("BU TA Password: "))
 
 		#Prepare Session
 		self.cj = cookielib.MozillaCookieJar()
-		
+
 		#Login
 		self.login()
 
-		# Setup Tesseract
-		self.setUpTesseract()
-
-		# Setup OpenCV
-		self.setUpOpenCV()
-
-		# Start capture
+		# Wait for input
 		while True:
 
-			# Fetch
-			img = cv.CreateImage((640, 480), cv.IPL_DEPTH_8U, 1)
+			# get BUID
+			raw = getpass.getpass("Please swipe card, or type 'quit' to exit")
+			if raw in [ "quit", "" ]:
+				break
 
-			# Gray
-			cv.CvtColor(cv.QueryFrame(self.capture), img, cv.CV_BGR2GRAY)
-
-			# Threshold
-			# cv.AdaptiveThreshold(img, img, 255, cv.CV_ADAPTIVE_THRESH_MEAN_C, cv.CV_THRESH_BINARY, 11, 6)
-			cv.AdaptiveThreshold(img, img, 255, cv.CV_ADAPTIVE_THRESH_MEAN_C, cv.CV_THRESH_BINARY, 9, 7)
-
-			# Display
-			cv.ShowImage("Camera", img)
-
-			# OCR
-			tesseract.SetCvImage(img, self.api)
-
-			match = re.search(r"(U\d{8})", self.api.GetUTF8Text())
+			match = re.search(r";1([^\^]*)", raw)
 			if match:
 
-				BUID = match.groups()[0]
-
-				print
+				BUID =  "U" + match.groups()[0]
 
 				# Lookup BUID
 				profile = self.lookupBUID(BUID)
@@ -65,30 +52,6 @@ class WebNewBUIDScanner:
 				# Prompt for approval
 				if profile != False and raw_input("Approve (y/n): ") == "y":
 					self.approveBUID(BUID)
-
-			# If Esc is pressed, quit (Also the fps)
-			if cv.WaitKey(100) == 27: break
-
-
-	def setUpTesseract(self):
-		self.api = tesseract.TessBaseAPI()
-		self.api.Init("/usr/local/Cellar/tesseract/3.03-rc1/share", "eng", tesseract.OEM_DEFAULT)
-		self.api.SetVariable("tessedit_char_whitelist", "U0123456789")
-		self.api.SetPageSegMode(tesseract.PSM_AUTO)
-
-
-	def setUpOpenCV(self):
-
-		# Setup OpenCV Window
-		cv.NamedWindow("Camera", 1)
-		self.capture = cv.CreateCameraCapture(0)
-
-		# Width
-		cv.SetCaptureProperty(self.capture, cv.CV_CAP_PROP_FRAME_WIDTH, 640)    
-
-		# Height
-		cv.SetCaptureProperty(self.capture, cv.CV_CAP_PROP_FRAME_HEIGHT, 480)
-
 
 	def login(self):
 		print "Logging in...",

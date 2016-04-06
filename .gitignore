@@ -1,3 +1,6 @@
+# file for storing ta username and password
+.auth
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
